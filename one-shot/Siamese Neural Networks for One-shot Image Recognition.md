@@ -51,14 +51,14 @@ $L$：网络层数
 
 $N_l$：各层单元数
 
-$\mathbf{h}_{1, l}$：孪生分枝1第$l$层的隐藏向量
+$\mathbf{h}_{1, l}$：孪生分枝1第$l$层的隐含向量
 
-$\mathbf{h}_{2, l}$：孪生分枝2第$l$层的隐藏向量
+$\mathbf{h}_{2, l}$：孪生分枝2第$l$层的隐含向量
 
 前$L-2$层的输出激活函数均为ReLU，其余两层的激活为Sigmoid；各层卷积核的数量为16的倍数；各层第$k$滤波器的输出为：
 
-$$a^{(k)}_{1, m} = \mathrm{max-pool}(\max(0, \mathbf{W}^{(k)}_{l - 1, l} * \mathbf{h}_{1, l - 1} + \mathbf{b}_l), 2)$$
-$$a^{(k)}_{2, m} = \mathrm{max-pool}(\max(0, \mathbf{W}^{(k)}_{l - 1, l} * \mathbf{h}_{2, l - 1} + \mathbf{b}_l), 2)$$
+$$a^{(k)}_{1, m} = \mathrm{maxpool}(\max(0, \mathbf{W}^{(k)}_{l - 1, l} * \mathbf{h}_{1, l - 1} + \mathbf{b}_l), 2)$$
+$$a^{(k)}_{2, m} = \mathrm{maxpool}(\max(0, \mathbf{W}^{(k)}_{l - 1, l} * \mathbf{h}_{2, l - 1} + \mathbf{b}_l), 2)$$
 
 卷积层与全连接层相连；额外增加一个全连接层用于计算两个孪生分枝输出的导出距离测度（the induced distance metric between each siamese twin），其输出激活为Sigmoid，则预测向量（prediction vector）为：
 
