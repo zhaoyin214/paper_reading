@@ -48,7 +48,7 @@ $$\mathcal{L} (\phi)= \sum_{i} l(\hat{y}_{i}, y_{i}) + \sum_{k} \Omega(f_{k}), \
 
 ### 2.2 梯度提升树（gradient tree boosting）
 
-树集成模型（Eq. 2）以函数作为参数，不能在欧氏空间中用传统优化算法求解（the tree ensemble model in Eq. (2) includes functions as parameters and cannot be optimized using traditional optimization methods in Euclidean space）。
+树集成模型（Eq. (2)）以函数作为参数，不能在欧氏空间中用传统优化算法求解（the tree ensemble model in Eq. (2) includes functions as parameters and cannot be optimized using traditional optimization methods in Euclidean space）。
 
 $\hat{y}_{i}^{(t)}$表示第$t$次迭代模型对样本$i$（instance）的预测，即：
 
@@ -119,7 +119,7 @@ g_{i} f_{t}(\mathbf{x}_{i}) +
 \frac{1}{2} h_{i} f_{t}^{2}(\mathbf{x}_{i})
 \right] + \Omega(f_{t}) \tag{3}$$
 
-将叶结点$j$的样本集合（instance set of leaf $j$）定义为$I_{j} = \{ i | q(\mathbf{x}_{i}) = j \}$，并展开Eq. 3中的惩罚项$\Omega$，
+将叶结点$j$的样本集合（instance set of leaf $j$）定义为$I_{j} = \{ i | q(\mathbf{x}_{i}) = j \}$，并展开Eq. (3)中的惩罚项$\Omega$，
 
 $$\begin{aligned}
 \tilde{\mathcal{L}}^{(t)}
@@ -194,10 +194,24 @@ $$\begin{aligned}
 \gamma
 \end{aligned}$$
 
-
 ▇
 
-<img src="./img/xgboost_algo_1.png" width="400" />
+### 2.3 系数收缩与特征重采样（shrinkage and column subsampling）
+
+本文使用系数收缩（shrinkage）与特征重采样（column (feature) subsampling）进一步防止过拟合（overfitting）
+
+*系数收缩*：每一步提升树后（after each step of tree boosting），系数收缩对新增权值缩放$\eta$倍（shrinkage scales newly added weights by a factor $\eta$）。系数收缩能减小各树对结果的影响，并为新增树预留改进模型的空间（shrinkage reduces the inﬂuence of each individual tree and leaves space for future trees to improve the model）。
+
+*特征重采样*：相比样本重抽样，特征重采样更能防止过拟合（using column sub-sampling prevents over-ﬁtting even more so than the traditional row sub-sampling）。
+
+
+## 3 划分点查找（split finding algorithms）
+
+### 3.1 贪心算法（basic exact greedy algorithm）
+
+贪心算法（exact greedy algorithm）：在全部特征上，遍历所有可能划分（enumerates over all the possible splits on all the features），根据Eq. (7)确定划分点（Alg. (1)）。
+
+<img src="./img/xgboost_algo_1.png" width="500" />
 
 ▇
 
@@ -219,23 +233,39 @@ $G_{L} + G_{R} = G$、$H_{L} + H_{R} = H$、$G = \sum_{i \in I} g_{i}$、$H = \s
 
 ▇
 
-<img src="./img/xgboost_algo_2.png" width="400" />
-
-
-
-### 2.3 系数收缩与二次采样（shrinkage and column subsampling）
-
-树的每一步提高后，收缩尺度增加了一个因素$\eta$的权重
-
-## 3 （split finding algorithms）
-
-### 3.1 贪心算法（basic exact greedy algorithm）
+使用贪心算法遍历连续特征（continuous features）所有可能划分点时，需先根据特征的值（feature values）对数据排序，然后遍历排序后的数据，通过累加梯度统计量计算Eq. (7)分值（the algorithm must ﬁrst sort the data according to feature values and visit the data in sorted order to accumulate the gradient statistics for the structure score）。
 
 ### 3.2 近似算法（approximate algorithm）
+
+当数据无法全部加载到内存中（the data does not ﬁt entirely into memory）或采用分布式设置（distributed setting）时，贪心算法运行低效。
+
+近似框架（an approximate framework）：
+
+<img src="./img/xgboost_algo_2.png" width="500" />
+
+（1）根据特征分布的分位数给出候选划分点（ﬁrst proposes candidate splitting points according to percentiles of feature distribution）；
+
+（2）将连续特性映射到候选划分区，累加统计量并从候选划分点中查找最优解（maps the continuous features into buckets split by these candidate points, aggregates the statistics and ﬁnds the best solution among proposals based on the aggregated statistics）。
+
+*候选划分点提名*：
+
+全局版本（global variant）：在构造树的初始化阶段，提名所有候选划分点；在查找各级划分点时使用同一候选划分点提名（the global variant proposes all the candidate splits during the initial phase of tree construction, and uses the same proposals for split ﬁnding at all levels）。
+
+局部版本（local variant）：每次划分后，重新提名候选划分点（the local variant re-proposes after each split）；每次划分后，局部提名都对候选划分点进行改进，适于构造深层树（the local proposal reﬁnes the candidates after splits, and can potentially be more appropriate for deeper trees）。
+
+当候选划分点足够多时，全局提名能达到局部提名的准确率（the global proposal can be as
+accurate as the local one given enough candidates）。
+
+直接构造近似梯度统计直方图（construct approximate histograms of gradient statistics）或用组策略替换分位数（use other variants of binning strategies instead of quantile）
+
+
+<img src="./img/xgboost_fig_3.png" width="500" />
 
 ### 3.3 加权分位数（weighted quantile sketch）
 
 ### 3.4 （sparsity-aware split finding）
+
+<img src="./img/xgboost_algo_3.png" width="500" />
 
 ## 4 （system design）
 
