@@ -70,7 +70,7 @@ g_{i} f_{t}(\mathbf{x}_{i}) +
 
 其中，$g_{i} = \partial_{\hat{y}^{(t - 1)}} l \left( y_{i}, \hat{y}^{(t - 1)} \right)$、$h_{i} = \partial_{\hat{y}^{(t - 1)}}^{2} l \left( y_{i}, \hat{y}^{(t - 1)} \right)$分别为损失函数的一阶和二阶梯度统计（ﬁrst and second order gradient statistics on the loss function）。
 
-▇
+■■
 
 泰勒公式：若函数$f(x)$在包含$x = x_0$的某个闭区间$[a, b]$上有$n$阶导数，且在开区间$(a, b)$上有$n + 1$阶导数，则对闭区间$[a, b]$上任意一点$x$，
 
@@ -110,7 +110,7 @@ g_{i} f_{t}(\mathbf{x}_{i}) +
 
 个人以为原文中$\hat{y}^{(t - 1)}$表述不够清晰，有歧义。
 
-▇
+■
 
 忽略方程中的常数项（$l \left( y_{i}, \hat{y}^{(t - 1)} \right)$），则在第$t$次迭代的损失函数化简为
 
@@ -132,9 +132,7 @@ g_{i} f_{t}(\mathbf{x}_{i}) +
 \end{aligned}
 \tag{4}$$
 
-▇
-$f_{t}$表示树结构，其作用是将输入$\mathbf{x}_{i}$映射到相应的叶结点$j$上，并返回叶结点$j$的权值$w_{j}$，即，$f_{t}(\mathbf{x}_{i}) = w_{j}, \forall i \in I_{j}$。
-▇
+■■$f_{t}$表示树结构，其作用是将输入$\mathbf{x}_{i}$映射到相应的叶结点$j$上，并返回叶结点$j$的权值$w_{j}$，即，$f_{t}(\mathbf{x}_{i}) = w_{j}, \forall i \in I_{j}$。■
 
 树结构$q(\mathbf{x})$固定时，其叶结点$j$分值的最优解（optimal weight）$w_{j}^{\ast}$为（令$\frac{\partial \tilde{\mathcal{L}}^{(t)}}{\partial w_{j}} = 0$）：
 
@@ -160,7 +158,7 @@ $$\mathcal{L}_{\text{split}}
 \right] - \gamma
 \tag{7}$$
 
-▇
+■■
 
 给定一个树结构$q$，其损失为
 
@@ -194,7 +192,7 @@ $$\begin{aligned}
 \gamma
 \end{aligned}$$
 
-▇
+■
 
 ### 2.3 系数收缩与特征重采样（shrinkage and column subsampling）
 
@@ -213,7 +211,7 @@ $$\begin{aligned}
 
 <img src="./img/xgboost_algo_1.png" width="500" />
 
-▇
+■■
 
 注意$g$、$h$分别表示$l$在$\mathcal{F}$空间上对$\phi$的一阶、二阶偏导数（$g = \frac{\partial l}{\partial \phi}$、$h = \frac{\partial^{2} l}{\partial \phi^{2}}$），将$l$在$\phi_{0} = \sum_{k}^{t - 1} f_{k}$处进行泰勒展开（$\Delta \phi = f_{t}$）
 
@@ -231,7 +229,7 @@ h(y, \phi_{0}) (\Delta \phi)^{2} \\
 
 $G_{L} + G_{R} = G$、$H_{L} + H_{R} = H$、$G = \sum_{i \in I} g_{i}$、$H = \sum_{i \in I} h_{i}$
 
-▇
+■
 
 使用贪心算法遍历连续特征（continuous features）所有可能划分点时，需先根据特征的值（feature values）对数据排序，然后遍历排序后的数据，通过累加梯度统计量计算Eq. (7)分值（the algorithm must ﬁrst sort the data according to feature values and visit the data in sorted order to accumulate the gradient statistics for the structure score）。
 

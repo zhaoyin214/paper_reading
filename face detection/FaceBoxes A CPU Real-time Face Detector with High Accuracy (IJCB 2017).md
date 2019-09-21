@@ -90,7 +90,7 @@ $$\text{CReLU} (x) = [\max(x, 0), \max(-x, 0)] = \text{ReLU} ([x, -x])$$
 
 锚点层输入特征图对应多尺寸感知域。Inception模块（Fig. 2-b）由卷积核尺寸不同的多个卷积分枝组成，因此能够沿网络宽度维度丰富感知域。
 
-▇
+■■
 FaceBoxes网络结构
 
 * RDCL
@@ -126,7 +126,8 @@ loc + conf | incept3 | 32 x 32 x 126 | 3 x 3 x ((4 + 2) x 21) | 1 | 1 | 32
 loc + conf | conv3_2 | 16 x 16 x 6 | 3 x 3 x ((4 + 2) x 1) | 1 | 1 | 64
 loc + conf | conv3_2 | 8 x 8 x 6 | 3 x 3 x ((4 + 2) x 1) | 1 | 1 | 128
 
-▇
+二分类问题，输出层激活可采用sigmoid，输出单元数量为1，即锚点卷积核数量为(4+1)。
+■
 
 ### 3.3 锚点稠密化（anchor densification strategy）
 
@@ -139,21 +140,30 @@ $$A_{\text{density}} = \frac{A_{\text{scale}}}{A_{\text{interval}}} \tag{1}$$
 其中，$A_{\text{scale}}$表示锚点尺度（scale of anchor）、$A_{\text{interval}}$表示锚点平铺间隔（tiling interval of anchor）。默认锚点的平铺间隔分别为32、32、32、64和128，由方程(1)可知，其对应的锚点平铺密度分别为1、2、4、4和4，因此引发不同尺度锚点的平铺密度不平衡问题（tiling density imbalance problem）。与大尺度锚点（$128 \times 128$、$256 \times 256$、$512 \times 512$）相比，小尺度锚点（$32 \times 32$、$64 \times 64$）过于稀疏。
 
 
-▇
-
---- | 尺度（人工指定） | 平铺间隔（步长） | 平铺密度
---- | ---: | ---: | ---:
-incept3 (1) | $32 \times 32$ | 32 | 1
-incept3 (2) | $64 \times 64$ | 32 | 2
-incept3 (3) | $128 \times 128$ | 32 | 4
-conv3_2 | $256 \times 256$ | 64 | 4
-conv4_2 | $512 \times 512$ | 128 | 4
-
-▇
-
-本文采用锚点稠密化策略（anchor densification strategy）处理不平衡问题（Fig. 3）：锚点$n$倍稠密化（densify one type of anchors $n$ times），围绕感知域中心均匀平铺$A_{\text{number}} = n^2$个锚点（uniformly tile $A_{\text{number}} = n^2$ around the center of one receptive field instead of only tiling one at the center of this receptive field to predict）。
+本文采用锚点稠密化策略（anchor densification strategy）处理不平衡问题（Fig. 3）：锚点$n$倍稠密化（densify one type of anchors $n$ times），围绕感知域中心均匀平铺$A_{\text{number}} = n^2$个锚点（uniformly tile $A_{\text{number}} = n^2$ anchors around the center of one receptive field instead of only tiling one at the center of this receptive field to predict）。
 
 <img src="./img/face_boxes_fig_3.png" width="400" />
+
+■■
+
+--- | 输入特征图尺寸 | 尺度（人工指定） | 步长 | 平铺间隔（像素步长） | 平铺密度 | 稠密化倍数（$n$） | 卷积核倍数（$n^{2}$） | 锚点框数量
+--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---:
+incept3 (1) | $32 \times 32$ | $32 \times 32$ | 1 | 32 | 1 | 4 | 16 | 16384
+incept3 (2) | $32 \times 32$ | $64 \times 64$ | 1 | 32 | 2 | 2 | 4 | 4096
+incept3 (3) | $32 \times 32$ | $128 \times 128$ | 1 | 32 | 4 | 1 | 1 | 1024
+conv3_2 | $16 \times 16$ | $256 \times 256$ | 1 | 64 | 4 | 1 | 1 | 256
+conv4_2 | $8 \times 8$ | $512 \times 512$ | 1 | 128 | 4 | 1 | 1 | 64
+
+锚点$n$倍稠密化后（即锚点数量增加$n^{2}$倍），所需卷积核数量增加$n^{2}$倍，因此incept3的锚点卷积层的卷积核数量为$16 + 4 + 1 = 21$。
+
+卷积核的感知域与锚点框关系（同一感知域表示感知域的中心、长、宽相同）：稠密化前，感知域与锚点框一一对应，感知域中心与锚点框中心重合；稠密化后，一个感知域对应$n^{2}$个锚点框，感知域中心与锚点框中心有偏移。因此，稠密化后，所需卷积核数量增加$n^{2}$倍。
+
+给定输入特图尺寸：$w \times h$；类别数：$n_{\text{class}}$；坐标数：$n_{\text{offset}}$；卷积核（预测器）步长：$s$；稠密化倍数：$n$，则卷积核数量：$n^{2} \times (n_{\text{class}} + n_{\text{offset}})$；锚点框数量：$\frac{w \times h}{s^{2}} \times n^{2}$；每个锚点框对应预测值数量：$n_{\text{class}} + n_{\text{offset}}$；预测值数量：$\frac{w \times h}{s^{2}} \times n^{2} \times (n_{\text{class}} + n_{\text{offset}})$
+
+锚点稠密化实际是增加卷积核数量，其原因在于：卷积核的感知域过大，与锚点框尺寸不匹配。例如，incept3的输出特征图尺寸为$32 \times 32$，其每个点对原始输入图像32个像素，则$3 \times 3$卷积核的感知域为$96 \times 96$；而锚点层incept3 (1)的锚点框尺寸为$32 \times 32$，意味着每个感知域中可能包含多个锚点框，因此需要增加卷积核数量。
+
+■
+
 
 ### 3.4 训练
 
@@ -171,7 +181,7 @@ WIDER FACE：训练集中包含12880张图像。
 
 * 匹配策略（matching strategy）
 
-首先将真实面部框匹配给IoU最大锚点；然后为每个锚点分配一个IoU大于门限的真实面部框。
+首先将真实面部框匹配给IoU最大锚点■■防止真实面部框过小，没有锚点与其匹配■；然后为每个锚点分配一个IoU大于门限的真实面部框。
 
 * 损失函数（loss function）
 

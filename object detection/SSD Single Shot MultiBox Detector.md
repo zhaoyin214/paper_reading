@@ -60,7 +60,7 @@ SSD方法基于前向卷积网络（a feed-forward convolutional network），�
 
 <img src="./img/ssd_fig_1.png" width="600" />
 
-■
+■■
 假设共有$c$个类别及$4$个相对于锚点框坐标的形状偏移，对一个特征图上每个锚点框形状（$\{a_{r}\}$），需要$c + 4$个卷积预测器，输出$m \times n \times (c + 4)$个预测值；则该特征图上，$k = |\{a_{r}\}|$个锚点框形状共需要$(c + 4)k$个预测器，输出$m \times n \times \left[(c + 4) \times k\right]$个预测值。
 即，预测器的卷积核尺寸为：$3 \times 3 \times p$，通道数为：$(c + 4) \times k$。
 ■
@@ -108,9 +108,9 @@ $$\mathrm{smooth}_{L_1} \left( x \right) =
 |x| - 0.5, & \mathrm{otherwise} \\
 \end{cases}$$
 
-其中，锚点框$d$的中心点坐标为$(c_x, c_y)$、长度为$w$、宽度为$h$；预测边界框（predicted box）$l$；真实边界框（ground truth box）$g$。【$g$、$d$已知，$l$未知】
+其中，锚点框$d$的中心点坐标为$(c_x, c_y)$、长度为$w$、宽度为$h$；预测边界框（predicted box）$l$；真实边界框（ground truth box）$g$。■$g$、$d$已知，$l$未知■
 
-*置信度损失（confidence loss，conf）*：$\mathcal{L}_{\mathrm{conf}}(x, c)$为所有类别的交叉熵损失（softmax loss over multiple classes confidences ($c$)，cross-entropy loss）
+*置信度损失（confidence loss，conf）*：$\mathcal{L}_{\mathrm{conf}}(x, c)$为所有类别（$c$）的交叉熵损失（softmax loss over multiple classes confidences ($c$)，cross-entropy loss）
 
 $$\mathcal{L}_{\mathrm{conf}}(x, c) = -
 \sum_{i \in Pos}^{N} x_{ij}^{p} \log \left( \hat{c}_{i}^{p} \right) -
