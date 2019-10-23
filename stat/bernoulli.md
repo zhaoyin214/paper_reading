@@ -23,21 +23,23 @@ $$\text{Multinoulli} (x ; \theta) = \prod_{j = 1}^{K} \theta_{j}^{x_{j}}$$
 
 *二项分布（binomial distribution）*：**$n$重伯努利随机实验**，假设$X \in \{ 0, 1, \cdots, n \}$表示事件$1$发生的次数。若事件$1$的发生的概率为$\theta$，则$X$服从二项分布，记为$X \sim \text{Bin} (n, \theta)$，其概率累积函数（probability mass function，pmf）定义为：
 
-$$\text{Bin} (k ; n, \theta) = \left(
-\begin{matrix}
+$$\text{Bin} (k ; n, \theta) =
+\begin{pmatrix}
 n \\
 k \\
-\end{matrix}\right) \theta^{k} (1 - \theta)^{n - x}$$
+\end{pmatrix} \theta^{k} (1 - \theta)^{n - k}$$
 
 <img src="http://www.stat.yale.edu/Courses/1997-98/101/binpdf.gif" />
 
 *多项分布（multinomial distribution）*：**$n$重多项伯努利随机实验**，假设$\mathbf{x} = (x_{1}, \cdots, x_{K})$为随机向量（random vector），其中$x_{j}$表示事件$j$发生的次数。若事件$j$的发生的概率为$\theta_{j}$，则$\mathbf{x}$服从多项分布，其概率累积函数（probability mass function，pmf）定义为：
 
-$$\text{Mu} (\mathbf{x} ; n, \mathbf{\theta}) = \left(
-\begin{matrix}
+$$\text{Mu} (\mathbf{x} ; n, \mathbf{\theta}) =
+\begin{pmatrix}
 n \\
 x_{1} \cdots x_{K} \\
-\end{matrix}\right) \prod_{j = 1}^{K} \theta^{x_{j}}$$
+\end{pmatrix} \prod_{j = 1}^{K} \theta^{x_{j}} =
+\frac{n!}{x_{1}! x_{2}! \cdots x_{K}!} \prod_{j = 1}^{K} \theta^{x_{j}}, \quad
+\sum_{j = 1}^{K} x_{j} = n$$
 
 ## 贝塔分布
 

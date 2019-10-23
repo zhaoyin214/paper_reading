@@ -86,7 +86,7 @@ $$\text{EMD} (\mathbf{p}, \hat{\mathbf{p}}) = \left( \frac{1}{N} \sum_{k = 1}^{N
 
 ## 3 实验
 
-数据集：AVA、TID2013，其中$20%$数据用于测试。
+数据集：AVA、TID2013，其中$20\%$数据用于测试。
 
 基础CNN网络加载ImageNet数据集预训练权值，输出全连接层权值随机初始化。
 
